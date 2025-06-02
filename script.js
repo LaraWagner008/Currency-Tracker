@@ -176,26 +176,10 @@ async function fetchCurrentRates() {
       updateConverter();
   } catch (error) {
       console.error('Ошибка при загрузке курсов:', error);
-      
-      /*
-      // Fallback: используем mock данные при ошибке API
-      const mockRates = {
-          USD: { rate: 90.45, change: 0.12 },
-          EUR: { rate: 98.75, change: -0.34 },
-          BTC: { rate: 3500000, change: 1.56 },
-          ETH: { rate: 200000, change: -0.89 }
-      };
-
-      for (const currency in mockRates) {
-          currentRates[currency] = mockRates[currency];
-      }
-*/
       updateRateCards();
       updateConverter();
   }
 }
-
-
 
 // Функция для загрузки исторических данных
 async function fetchHistoricalData(currency, days) {
@@ -325,7 +309,7 @@ function getCurrencyColor(currency) {
       default: return '#FFFFFF';
   }
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 let isConverting = false;
 
 function convertCurrency(e) {
@@ -423,7 +407,7 @@ document.querySelectorAll('.time-btn').forEach(btn => {
 document.getElementById('currency-select').addEventListener('change', function() {
     updateChart();
 });
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
   fetchCurrentRates();

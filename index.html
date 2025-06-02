@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курсы валют</title>
+    <link rel="icon" type="image/png" href="icons/icon.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Currency Tracker</h1>
+            <p>Актуальные курсы валют и криптовалют</p>
+        </header>
+
+        <div class="current-rates">
+            <h2>Текущие курсы</h2>
+            <div class="rates-grid">
+                <div class="rate-card" id="usd">
+                    <div class="currency-info">
+                        <h3>USD</h3>
+                        <p class="rate-value">Загрузка...</p>
+                        <p class="rate-change">▲ 0.00%</p>
+                    </div>
+                </div>
+                <div class="rate-card" id="eur">
+                    <div class="currency-info">
+                        <h3>EUR</h3>
+                        <p class="rate-value">Загрузка...</p>
+                        <p class="rate-change">▲ 0.00%</p>
+                    </div>
+                </div>
+                <div class="rate-card" id="btc">
+                    <div class="currency-info">
+                        <h3>BTC</h3>
+                        <p class="rate-value">Загрузка...</p>
+                        <p class="rate-change">▲ 0.00%</p>
+                    </div>
+                </div>
+                <div class="rate-card" id="eth">
+                    <div class="currency-info">
+                        <h3>ETH</h3>
+                        <p class="rate-value">Загрузка...</p>
+                        <p class="rate-change">▲ 0.00%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2>История курса</h2>
+                <div class="time-intervals">
+                    <button class="time-btn active" data-interval="1d">День</button>
+                    <button class="time-btn" data-interval="1w">Неделя</button>
+                    <button class="time-btn" data-interval="1m">Месяц</button>
+                    <button class="time-btn" data-interval="1y">Год</button>
+                </div>
+                <select id="currency-select" class="currency-select">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="BTC">BTC</option>
+                    <option value="ETH">ETH</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="currency-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="converter-section">
+            <h2>Конвертер валют</h2>
+            <div class="converter">
+                <div class="converter-input">
+                    <input type="number" id="amount" value="1" min="0">
+                    <select id="from-currency">
+                        <option value="RUB">RUB</option>
+                        <option value="USD" selected>USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                    </select>
+                </div>
+                <div class="converter-arrow">⇄</div>
+                <div class="converter-input">
+                    <input type="number" id="converted-amount" readonly>
+                    <select id="to-currency">
+                        <option value="RUB" selected>RUB</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                    </select>
+                </div>
+                <button id="swap-currencies" class="swap-btn">Поменять местами</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Курсы валют | Данные: ЦБ РФ и CoinGecko API</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

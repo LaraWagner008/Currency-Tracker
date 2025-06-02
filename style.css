@@ -1,0 +1,372 @@
+:root {
+  --primary: #D0F252;
+  --secondary: #C10FF2;
+  --accent1: #F2D785;
+  --accent2: #77F2FF;
+  --dark: #1A1A1A;
+  --light: #F5F5F5;
+  --gray: #2D2D2D;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--dark);
+  color: var(--light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  flex: 1;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--gray), var(--dark));
+  border-radius: 15px;
+  border: 1px solid var(--accent1);
+  box-shadow: 0 0 15px rgba(193, 15, 242, 0.2);
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, var(--primary), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.header p {
+  color: var(--accent1);
+  font-size: 1.1rem;
+}
+
+.current-rates {
+  margin-bottom: 30px;
+}
+
+.current-rates h2 {
+  margin-bottom: 20px;
+  color: var(--primary);
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.rates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.rate-card {
+  background: var(--gray);
+  border-radius: 12px;
+  padding:10px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: rgb(208, 242, 82, 0.15);
+}
+
+
+#usd {
+position: relative;
+overflow: hidden;
+}
+#usd::before {
+content: "";
+position: absolute;
+inset: 0;
+background: url("icons/USD.png") no-repeat calc(100% + 30px) center / contain;
+opacity: 0.3;
+z-index: 0;
+}
+#usd > * {
+position: relative;
+z-index: 1;
+}
+
+#eur {
+position: relative;
+overflow: hidden;
+}
+#eur::before {
+content: "";
+position: absolute;
+inset: 0;
+background: url("icons/EUR.png") no-repeat calc(100% + 30px) center / contain;
+opacity: 0.3;
+z-index: 0;
+}
+#eur > * {
+position: relative;
+z-index: 1;
+}
+
+#btc {
+position: relative;
+overflow: hidden;
+}
+#btc::before {
+content: "";
+position: absolute;
+inset: 0;
+background: url("icons/BTC.png") no-repeat calc(100% + 30px) center / contain;
+opacity: 0.3;
+z-index: 0;
+}
+#btc > * {
+position: relative;
+z-index: 1;
+}
+
+#eth {
+position: relative;
+overflow: hidden;
+}
+#eth::before {
+content: "";
+position: absolute;
+inset: 0;
+background: url("icons/ETH.png") no-repeat calc(100% + 30px) center / contain;
+opacity: 0.3;
+z-index: 0;
+}
+#eth > * {
+position: relative;
+z-index: 1;
+}
+
+.rate-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent2);
+  box-shadow: 0 10px 20px rgba(119, 242, 255, 0.2);
+}
+
+.currency-info h3 {
+  font-size: 1.3rem;
+  margin-bottom: 5px;
+}
+
+.rate-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.rate-change {
+  font-size: 0.9rem;
+  color: #4CAF50;
+}
+
+.rate-change.negative {
+  color: #F44336;
+}
+
+.chart-section {
+  background: var(--gray);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid var(--secondary);
+  box-shadow: 0 0 20px rgba(193, 15, 242, 0.1);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.chart-header h2 {
+  color: var(--accent1);
+  font-size: 1.8rem;
+  margin-right: 20px;
+}
+
+.time-intervals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.time-btn {
+  background: transparent;
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.time-btn:hover {
+  background: rgba(119, 242, 255, 0.1);
+}
+
+.time-btn.active {
+  background: var(--accent2);
+  color: var(--dark);
+  font-weight: bold;
+}
+
+.currency-select {
+  background: var(--dark);
+  color: var(--light);
+  border: 1px solid var(--primary);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.currency-select:hover {
+  background: rgba(208, 242, 82, 0.1);
+}
+
+option{
+  background-color: var(--dark);
+}
+
+.chart-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+}
+
+.converter-section {
+  background: var(--gray);
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 20px rgba(208, 242, 82, 0.1);
+}
+
+.converter-section h2 {
+  color: var(--accent2);
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.converter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.converter-input {
+  display: flex;
+  align-items: center;
+  background: var(--dark);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--secondary);
+}
+
+.converter-input input {
+  background: transparent;
+  border: none;
+  color: var(--light);
+  padding: 12px 15px;
+  font-size: 1.1rem;
+  width: 150px;
+}
+
+.converter-input input:focus {
+  outline: none;
+  background: rgba(193, 15, 242, 0.05);
+}
+
+.converter-input select {
+  background: var(--secondary);
+  color: var(--light);
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.converter-arrow {
+  font-size: 1.5rem;
+  color: var(--accent1);
+  transition: transform 0.3s ease;
+}
+
+
+
+.swap-btn {
+  background: linear-gradient(135deg, var(--primary), var(--accent1));
+  color: var(--dark);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.swap-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(208, 242, 82, 0.4);
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--accent1);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .rates-grid {
+      grid-template-columns: 1fr 1fr;
+  }
+  
+  .chart-header {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+  
+  .time-intervals {
+      margin-top: 15px;
+  }
+  
+  .converter {
+      flex-direction: column;
+  }
+  
+  .converter-arrow {
+      transform: rotate(90deg);
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.rate-card.loading {
+  animation: pulse 1.5s infinite;
+}

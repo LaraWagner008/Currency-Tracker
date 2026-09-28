@@ -203,18 +203,45 @@ async function fetchHistoricalData(currency, days) {
       let data = [];
       
       if (currency === 'USD' || currency === 'EUR') {
-          // Для фиатных валют используем CoinGecko как fallback (у ЦБ РФ нет удобного исторического API)
-          const vsCurrency = 'rub';
-          const response = await axios.get(
-              `https://api.coingecko.com/api/v3/coins/${currency.toLowerCase()}/market_chart?vs_currency=${vsCurrency}&days=${days}`
-          );
+          // === История фиатных валют с официального API ЦБ РФ ===
+          const valCode = currency === 'USD' ? 'R01235' : 'R01239';
           
-          data = response.data.prices.map(item => ({
-              time: item[0] / 1000,
-              value: item[1]
-          }));
+          // Формируем даты в формате ДД/ММ/ГГГГ
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(endDate.getDate() - days);
+          
+          const fmt = (d) => {
+              const dd = String(d.getDate()).padStart(2, '0');
+              const mm = String(d.getMonth() + 1).padStart(2, '0');
+              const yyyy = d.getFullYear();
+              return `${dd}/${mm}/${yyyy}`;
+          };
+          
+          const url = `http://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=${fmt(startDate)}&date_req2=${fmt(endDate)}&VAL_NM_RQ=${valCode}`;
+          
+          const response = await axios.get(url, { responseType: 'text' });
+          
+          // Парсим XML
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(response.data, 'text/xml');
+          const records = xmlDoc.querySelectorAll('Record');
+          
+          records.forEach(record => {
+              const dateStr = record.getAttribute('Date'); // "01.09.2025"
+              const valueStr = record.querySelector('Value').textContent.replace(',', '.');
+              
+              const [dd, mm, yyyy] = dateStr.split('.');
+              const date = new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
+              
+              data.push({
+                  time: date.getTime() / 1000, // в секундах, как у CoinGecko
+                  value: parseFloat(valueStr)
+              });
+          });
+          
       } else {
-          // Для криптовалют используем CoinGecko API
+          // === История криптовалют с CoinGecko (работает как было) ===
           const coinId = currency === 'BTC' ? 'bitcoin' : 'ethereum';
           const response = await axios.get(
               `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=rub&days=${days}`

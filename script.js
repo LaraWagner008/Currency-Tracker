@@ -426,10 +426,17 @@ function updateConverter() {
 }
 
 // Обработчики событий
+// Обработчики событий
 amountInput.addEventListener('input', convertCurrency);
 convertedAmountInput.addEventListener('input', function(e) { convertCurrency(e); });
 fromCurrencySelect.addEventListener('change', function() { convertCurrency({target: amountInput}); });
 toCurrencySelect.addEventListener('change', function() { convertCurrency({target: amountInput}); });
+
+// Автоподстановка текущего года в футер
+const yearEl = document.getElementById('current-year');
+if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+}
 
 swapButton.addEventListener('click', () => {
     const temp = fromCurrencySelect.value;

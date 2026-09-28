@@ -331,11 +331,18 @@ option{
   box-shadow: 0 5px 15px rgba(208, 242, 82, 0.4);
 }
 
-.footer {
+footer {
   text-align: center;
   padding: 20px;
   color: var(--accent1);
   font-size: 0.9rem;
+  margin-top: 20px;
+  width: 100%;
+}
+
+footer p {
+  margin: 0;
+  text-align: center;
 }
 
 @media (max-width: 768px) {

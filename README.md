@@ -1,9 +1,5 @@
 # Currency Tracker 🌐
 
-[![Live Demo](https://img.shields.io/badge/LIVE-DEMO-brightgreen?style=for-the-badge)](https://larawagner008.github.io/Currency-Tracker/)
-![GitHub last commit](https://img.shields.io/github/last-commit/larawagner008/Currency-Tracker?style=flat-square)
-![GitHub repo size](https://img.shields.io/github/repo-size/larawagner008/Currency-Tracker?style=flat-square)
-
 Веб-приложение для отслеживания курсов валют с графиками и конвертером. Доступно по ссылке:  
 👉 [https://larawagner008.github.io/Currency-Tracker/](https://larawagner008.github.io/Currency-Tracker/)
 

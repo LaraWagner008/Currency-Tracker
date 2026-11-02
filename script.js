@@ -146,12 +146,12 @@ async function fetchCurrentRates() {
       if (cbrResponse.data && cbrResponse.data.Valute) {
           currentRates.USD = {
               rate: cbrResponse.data.Valute.USD.Value,
-              change: parseFloat(cbrResponse.data.Valute.USD.Previous - cbrResponse.data.Valute.USD.Value) / cbrResponse.data.Valute.USD.Previous * 100
+              change: (cbrResponse.data.Valute.USD.Value - cbrResponse.data.Valute.USD.Previous) / cbrResponse.data.Valute.USD.Previous * 100
           };
           
           currentRates.EUR = {
               rate: cbrResponse.data.Valute.EUR.Value,
-              change: parseFloat(cbrResponse.data.Valute.EUR.Previous - cbrResponse.data.Valute.EUR.Value) / cbrResponse.data.Valute.EUR.Previous * 100
+              change: (cbrResponse.data.Valute.EUR.Value - cbrResponse.data.Valute.EUR.Previous) / cbrResponse.data.Valute.EUR.Previous * 100
           };
       }
 
@@ -198,65 +198,81 @@ async function fetchCurrentRates() {
 
 
 // Функция для загрузки исторических данных
+// Загрузка одного дня из архива ЦБ (через зеркало с CORS)
+// Загрузка одного дня из архива ЦБ (через зеркало с CORS)
+async function fetchCbrDay(date, code) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const url = `https://www.cbr-xml-daily.ru/archive/${yyyy}/${mm}/${dd}/daily_json.js`;
+
+  try {
+    const res = await axios.get(url);
+    const valute = res.data && res.data.Valute && res.data.Valute[code];
+    if (!valute) return null;
+    return {
+      time: date.getTime() / 1000,
+      value: valute.Value / valute.Nominal
+    };
+  } catch (e) {
+    // 404 в выходные и праздники - это нормально
+    return null;
+  }
+}
+
+// Функция для загрузки исторических данных
 async function fetchHistoricalData(currency, days) {
   try {
-      let data = [];
-      
-      if (currency === 'USD' || currency === 'EUR') {
-          // === История фиатных валют с официального API ЦБ РФ ===
-          const valCode = currency === 'USD' ? 'R01235' : 'R01239';
-          
-          // Формируем даты в формате ДД/ММ/ГГГГ
-          const endDate = new Date();
-          const startDate = new Date();
-          startDate.setDate(endDate.getDate() - days);
-          
-          const fmt = (d) => {
-              const dd = String(d.getDate()).padStart(2, '0');
-              const mm = String(d.getMonth() + 1).padStart(2, '0');
-              const yyyy = d.getFullYear();
-              return `${dd}/${mm}/${yyyy}`;
-          };
-          
-          const url = `http://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=${fmt(startDate)}&date_req2=${fmt(endDate)}&VAL_NM_RQ=${valCode}`;
-          
-          const response = await axios.get(url, { responseType: 'text' });
-          
-          // Парсим XML
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(response.data, 'text/xml');
-          const records = xmlDoc.querySelectorAll('Record');
-          
-          records.forEach(record => {
-              const dateStr = record.getAttribute('Date'); // "01.09.2025"
-              const valueStr = record.querySelector('Value').textContent.replace(',', '.');
-              
-              const [dd, mm, yyyy] = dateStr.split('.');
-              const date = new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
-              
-              data.push({
-                  time: date.getTime() / 1000, // в секундах, как у CoinGecko
-                  value: parseFloat(valueStr)
-              });
+    if (currency === 'USD' || currency === 'EUR') {
+
+      // === ДЕНЬ: ЦБ даёт один курс в сутки, поэтому 24 часовые точки с одним значением ===
+      if (days <= 1) {
+        const res = await axios.get('https://www.cbr-xml-daily.ru/daily_json.js');
+        const v = res.data.Valute[currency];
+        const rate = v.Value / v.Nominal;
+
+        const now = new Date();
+        now.setMinutes(0, 0, 0);
+
+        const data = [];
+        for (let i = 23; i >= 0; i--) {
+          data.push({
+            time: (now.getTime() - i * 3600 * 1000) / 1000,
+            value: rate
           });
-          
-      } else {
-          // === История криптовалют с CoinGecko (работает как было) ===
-          const coinId = currency === 'BTC' ? 'bitcoin' : 'ethereum';
-          const response = await axios.get(
-              `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=rub&days=${days}`
-          );
-          
-          data = response.data.prices.map(item => ({
-              time: item[0] / 1000,
-              value: item[1]
-          }));
+        }
+        return data;
       }
-      
-      return data;
+
+      // === НЕДЕЛЯ / МЕСЯЦ / ГОД: как было ===
+      const maxPoints = days <= 7 ? 7 : days <= 30 ? 15 : 12;
+      const stepDays = Math.max(1, Math.floor(days / maxPoints));
+
+      const requests = [];
+      for (let i = days; i >= 0; i -= stepDays) {
+        const d = new Date();
+        d.setHours(12, 0, 0, 0);
+        d.setDate(d.getDate() - i);
+        requests.push(fetchCbrDay(d, currency));
+      }
+
+      const results = await Promise.all(requests);
+      return results.filter(Boolean);
+    }
+
+    // Криптовалюты: CoinGecko (как было)
+    const coinId = currency === 'BTC' ? 'bitcoin' : 'ethereum';
+    const response = await axios.get(
+      `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=rub&days=${days}`
+    );
+
+    return response.data.prices.map(item => ({
+      time: item[0] / 1000,
+      value: item[1]
+    }));
   } catch (error) {
-      console.error(`Ошибка загрузки исторических данных для ${currency}:`, error);
-      return [];
+    console.error(`Ошибка загрузки исторических данных для ${currency}:`, error);
+    return [];
   }
 }
 
@@ -306,7 +322,7 @@ async function updateChart() {
       
       sampledData.push(item.value);
       
-      if (interval === '1d') {
+            if (interval === '1d') {
         labels.push(date.toLocaleTimeString('ru-RU', settings.timeFormat));
       } else {
         labels.push(date.toLocaleDateString('ru-RU', settings.timeFormat));
@@ -314,12 +330,13 @@ async function updateChart() {
       
       if (labels.length >= settings.points) break;
     }
+
   
     // Добавляем текущую дату/время для всех интервалов
     if (sampledData.length > 0) {
       const now = new Date();
       let currentLabel;
-      
+          
       if (interval === '1d') {
         currentLabel = now.toLocaleTimeString('ru-RU', settings.currentFormat);
       } else {
@@ -332,7 +349,7 @@ async function updateChart() {
         sampledData.push(sampledData[sampledData.length - 1]); // Используем последнее значение
       }
     }
-  
+      
     currencyChart.data.labels = labels;
     currencyChart.data.datasets[0].data = sampledData;
     currencyChart.data.datasets[0].label = `${currency}/RUB`;
